@@ -756,6 +756,7 @@ class SearchScholarQuery(ScholarQuery):
         + '&as_ylo=%(ylo)s' \
         + '&as_yhi=%(yhi)s' \
         + '&as_vis=%(citations)s' \
+        + '&scisbd=%(order_by)s' \
         + '&btnG=&hl=en' \
         + '%(num)s' \
         + '&as_sdt=%(patents)s%%2C5'
@@ -773,6 +774,7 @@ class SearchScholarQuery(ScholarQuery):
         self.timeframe = [None, None]
         self.include_patents = True
         self.include_citations = True
+        self.order_by_time = False
 
     def set_words(self, words):
         """Sets words that *all* must be found in the result."""
@@ -819,6 +821,9 @@ class SearchScholarQuery(ScholarQuery):
     def set_include_citations(self, yesorno):
         self.include_citations = yesorno
 
+    def set_order_by_time(self, yesorno):
+        self.order_by_time = yesorno
+
     def set_include_patents(self, yesorno):
         self.include_patents = yesorno
 
@@ -852,6 +857,7 @@ class SearchScholarQuery(ScholarQuery):
                    'ylo': self.timeframe[0] or '',
                    'yhi': self.timeframe[1] or '',
                    'patents': '0' if self.include_patents else '1',
+                   'order_by': '1' if self.order_by_time else '0',
                    'citations': '0' if self.include_citations else '1'}
 
         for key, val in urlargs.items():
@@ -1187,6 +1193,8 @@ scholar.py -c 5 -a "albert einstein" -t --none "quantum theory" --after 1970"""
                      help='Do not include patents in results')
     group.add_option('--no-citations', action='store_true', default=False,
                      help='Do not include citations in results')
+    group.add_option('--order-by-time', action='store_true', default=False,
+                     help='Order results by time')
     group.add_option('-C', '--cluster-id', metavar='CLUSTER_ID', default=None,
                      help='Do not search, just use articles in given cluster ID')
     group.add_option('-c', '--count', type='int', default=None,
@@ -1283,6 +1291,8 @@ scholar.py -c 5 -a "albert einstein" -t --none "quantum theory" --after 1970"""
             query.set_timeframe(options.after, options.before)
         if options.no_patents:
             query.set_include_patents(False)
+        if options.order_by_time:
+            query.set_order_by_time(True)
         if options.no_citations:
             query.set_include_citations(False)
 
